@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equip="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <title>Xiaomi-Force</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="dist/css/semantic.min.css">
+    <link rel="stylesheet" href="dist/css/icon.min.css">
+    <link rel="stylesheet" href="dist/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.css">
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous">
+    </script>
+    <script src="dist/js/semantic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.10/semantic.min.js"></script>
+    <!-- <script type="text/javascript" src="dist/js/vues.js"></script> -->
+  </head>
+  <body>
+    <div id="app">
+      <div class="ui left vertical sidebar inverted labeled icon menu">
+        <a href="index.html" class="item"><i class="home icon"></i>Home</a>
+        <a href="#" class="item"><i class="tags icon"></i>Payment</a>
+        <a href="#" class="item signin" v-if="!isLogin" v-on:click="goSignInPopUp"><i class="sign in icon"></i>Login</a>
+        <a href="#" class="item" v-if="isLogin"><i class="sign out icon"></i>Sign Out</a>
+        <a href="#" class="item" v-if="!isLogin"><i class="add user icon"></i>Sign Up</a>
+      </div>
+      <div class="ui inverted basic icon top fixed menu" style="height: 55px; background-color: #588c7e">
+        <a id="toggle" class="item" v-on:click="goSideBar">
+          <i class="sidebar icon"></i>
+        </a>
+        <div class="item" style="font-size: 2em; width: 400px;">
+          <i class="large xing square icon"></i>
+            Xiaomi Force
+        </div>
+        <div class="ui category search item" style="width: 550px;">
+          <div class="ui transparent icon input">
+            <input class="promt" type="text" placeholder="Search here ..." v-on:keyup="showSearchItem" v-model="searchItem">
+            <i class="search link icon"></i>
+          </div>
+        </div>
+        <div class="right item">
+          <a class="item" v-on:click="goCartModalShow">
+            <i class="icons">
+              <i class="big cart in icon"></i>
+              <a href="#" class="ui small floating red circular label">{{ cart }}</a>
+            </i>
+          </a>
+        </div>
+      </div>
+      <div class="pusher">
+        <!--  -->
+        <div class="ui two column stackable grid fluid container" style="padding-bottom: 50px;">
+          <div class="thirteen wide column" id="wide-body" style="width: 100%;">
+            <!-- card start here -->
+            <div class="ui special link cards" v-on:mouseover="goSpecialCards" v-if="items">
+              <div class="card"   v-for="item in items">
+                <div class="blurring dimmable image">
+                  <div class="ui dimmer">
+                    <div class="content">
+                      <div class="center">
+                        <div class="ui inverted button" v-on:click="pushToCart(item._id)"><i class="add to cart icon"></i>Add to Cart</div>
+                      </div>
+                    </div>
+                  </div>
+                  <img :src="item.pict">
+                </div>
+                <div class="content">
+                  <a class="header">{{ item.name }}</a>
+                  <div class="meta">
+                    <span class="date"><b>Category</b>: {{ item.category }}</span> <br />
+                    <span class="date"><b>Specification</b>: {{ item.procesor }}</span>
+                  </div>
+                </div>
+                <div class="extra content">
+                  <a>
+                    <i class="dollar icon"></i>
+                    <div class="ui blue tag label">
+                      <a href="#" class="ui blue label">Rp. {{ item.price }}</a>
+                    </div>
+                  </a>
+                  <button class="ui circular icon button">
+                    <i class="ellipsis vertical icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- card finish here -->
+            <div class="ui special link cards" v-if="items[0] == null">
+              <p style="font-size: 2em;"><b>Product Not Found..</b></p>
+            </div>
+          </div>
+          <div class="three wide column" id="wide-menu" style="padding-left: 50px;">
+            <div class="ui vertical menu">
+              <div class="item">
+                <div class="header">
+                  Product Categories
+                </div>
+                <div class="menu">
+                  <a class="item" v-on:click="showAllItem">All Categories</a>
+                  <a class="item" v-on:click="showByCategory('Redmi Phone')">Redmi Phone</a>
+                  <a class="item" v-on:click="showByCategory('Mi Phone')">Mi Phone</a>
+                  <a class="item" v-on:click="showByCategory('Power Bank')">Power Bank</a>
+                  <a class="item" v-on:click="showByCategory('Mi Band')">Mi Band</a>
+                  <a class="item" v-on:click="showByCategory('Xiaoyi')">Xiaoyi</a>
+                  <a class="item" v-on:click="showByCategory('Mi TV')">Mi TV</a>
+                  <a class="item" v-on:click="showByCategory('Mi Pad')">Mi Pad</a>
+                </div>
+              </div>
+              <div class="item">
+                <div class="header">
+                  Register to joint
+                </div>
+                <div class="menu">
+                  <a class="item">Register</a>
+                </div>
+              </div>
+              <div class="item">
+                <div class="header">
+                  Support
+                </div>
+                <div class="menu">
+                  <a class="item">Email Support</a>
+                  <a class="item">FAQ's</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ui fluid container">
+          <div class="ui inverted vertical footer segment" style="height: 230px; padding-top: 50px;">
+          <div class="ui container">
+            <div class="ui stackable inverted divided equal height stackable grid">
+              <div class="three wide column">
+                <h4 class="ui inverted header">About</h4>
+                <div class="ui inverted link list">
+                  <a href="#" class="item">Sitemap</a>
+                  <a href="#" class="item">Contact Us</a>
+                  <a href="#" class="item">Religious Ceremonies</a>
+                  <a href="#" class="item">Gazebo Plans</a>
+                </div>
+              </div>
+              <div class="three wide column">
+                <h4 class="ui inverted header">Services</h4>
+                <div class="ui inverted link list">
+                  <a href="#" class="item">Banana Pre-Order</a>
+                  <a href="#" class="item">DNA FAQ</a>
+                  <a href="#" class="item">How To Access</a>
+                  <a href="#" class="item">Favorite X-Men</a>
+                </div>
+              </div>
+              <div class="seven wide column">
+                <h4 class="ui inverted header">Footer Header</h4>
+                <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ui modal" id="cart-modal">
+        <i class="close icon"></i>
+        <div class="header">
+          <i class="shopping bag icon"></i>
+          Your Request Products
+        </div>
+        <div class="content">
+          <table class="ui compact celled definition table">
+            <thead class="full-width">
+              <tr>
+                <th>Product Name</th>
+                <th>Request Date</th>
+                <th>Waranty Time</th>
+                <th>Price of Product</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="cartlist in cartlists">
+                <td>
+                  <h4 class="ui image header">
+                    <!-- :src from list.pict -->
+                    <img :src="cartlist.pict" alt="..." class="ui mini rounded image">
+                    <div class="content">
+                      <!-- name -->
+                      {{ cartlist.name }}
+                      <div class="sub header">
+                        <!-- category -->
+                        {{ cartlist.category }}
+                      </div>
+                    </div>
+                  </h4>
+                </td>
+                <td>{{ requestDate }}</td>
+                <td>{{ cartlist.waranti }}</td>
+                <td>Rp. {{ cartlist.price }}</td>
+              </tr>
+              <tr>
+                <td colspan="3"><b>Total Payment</b></td>
+                <td>Rp. {{ total }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <br />
+          <br />
+          <p>*This is your cart items, please check before you go to next process. If you don't agree to process press No</p>
+        </div>
+        <div class="actions">
+          <div class="ui black deny button" v-on:click="getCartEmpty">
+            No, Next time
+          </div>
+          <div class="ui positive right labeled icon button">
+            Yes, Please Process
+            <i class="tags icon"></i>
+          </div>
+        </div>
+      </div>
+      <!--  -->
+      <div class="ui modal" id="login-modal">
+        <i class="close icon"></i>
+        <div class="header">
+          <i class="users icon"></i>
+          Please Regist Yourself or Log in
+        </div>
+        <div class="content">
+          <div class="header">
+            <h4>Already Have Account</h4>
+            <br>
+          </div>
+          <form class="ui form" style="padding-left: 48px; padding-right: 48px;">
+            <div class="field">
+              <label>Username</label>
+              <input type="text" placeholder="Full Name..">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" placeholder="Password..">
+            </div>
+            <button class="ui blue labeled icon button">
+              <i class="checkmark icon"></i>
+              Loging In
+            </button>
+          </form>
+          <div class="ui horizontal divider">
+            Or
+            <div class="header">
+              <br>
+              <br>
+              Register New User
+            </div>
+          </div>
+          <form class="ui form" style="padding-left: 60px; padding-right: 60px;">
+            <div class="field">
+              <label>Full Name</label>
+              <input type="text" placehoder="Your Full Name..">
+            </div>
+            <div class="field">
+              <label>Username</label>
+              <input type="text" placehoder="Username..">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" placehoder="Password..">
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="text" placehoder="Your E-mail..">
+            </div>
+            <div class="field">
+              <label>Phone Number</label>
+              <input type="text" placehoder="Phone number..">
+            </div>
+            <div class="field">
+              <label>Zipcode</label>
+              <input type="text" placehoder="Zipcode..">
+            </div>
+          </form>
+          <br />
+          <br />
+          <p>*This is your cart items, please check before you go to next process. If you don't agree to process press No</p>
+        </div>
+        <div class="actions">
+          <div class="ui black deny button">
+            No, Next time
+          </div>
+          <div class="ui positive right labeled icon button">
+            Yes, Register Now
+            <i class="forward icon"></i>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="dist/js/style.js"></script>
+    <script type="text/javascript" src="dist/js/vues.js"></script>
+  </body>
+</html>
